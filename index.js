@@ -3,7 +3,6 @@
 // =============================================================================
 const through = require('through2');
 const PluginError = require('gulp-util').PluginError;
-const util = require('util');
 const css = require('css');
 
 // =============================================================================
@@ -40,12 +39,31 @@ module.exports = function (attributesToRemove, options) {
     function removeCssAttributes(parsedCss, attributesToRemove) {
         parsedCss.stylesheet.rules = parsedCss.stylesheet.rules
             .map(rule => {
-                // only filter rules, the other types are just kept
+                if (rule.type === 'media') {
+                    rule.rules.forEach(function (m) {
+                        // Differ rule and comment (comment = undefined)
+                        if (m.type === 'rule') {
+                            m.declarations = m.declarations.filter(declaration => !attributesToRemove.includes(declaration.property));
+                        }
+                    });
+                }
+
+                if (rule.type === 'keyframes') {
+                    rule.keyframes.forEach(function (k) {
+                        // Differ rule and comment (comment = undefined)
+                        if (k.type === 'keyframe') {
+                            k.declarations = k.declarations.filter(declaration => !attributesToRemove.includes(declaration.property));
+                        }
+                    });
+                }
+            
                 if (rule.type === 'rule') {
                     rule.declarations = rule.declarations.filter(declaration => !attributesToRemove.includes(declaration.property));
                 }
+                
                 return rule;
             })
+        
         return parsedCss;
     }
 
@@ -64,7 +82,6 @@ module.exports = function (attributesToRemove, options) {
         // success
         callback(null, file);
     }
-
-    //
+    
     return through.obj(transform);
 };
