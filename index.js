@@ -40,6 +40,11 @@ module.exports = function (attributesToRemove, options) {
         parsedCss.stylesheet.rules = parsedCss.stylesheet.rules
             .map(rule => {
                 if (rule.type === 'media') {
+                    // Replace invalid feature value (according to W3C) caused by Foundation
+                    if (rule.media.includes('0\\0')) {
+                        rule.media = rule.media.replace('0\\0', '0');
+                    }
+                    
                     rule.rules.forEach(function (m) {
                         // Differ rule and comment (comment = undefined)
                         if (m.type === 'rule') {
