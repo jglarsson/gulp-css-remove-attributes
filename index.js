@@ -42,7 +42,7 @@ module.exports = function (attributesToRemove, options) {
                 if (rule.type === 'media') {
                     // Replace invalid feature value (according to W3C) caused by Foundation
                     if (rule.media.includes('0\\0')) {
-                        rule.media = rule.media.replace('0\\0', '0');
+                        rule.media = rule.media.replace('min-width: 0\\0', '-ms-high-contrast: none');
                     }
                     
                     rule.rules.forEach(function (m) {
